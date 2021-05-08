@@ -70,10 +70,14 @@ function shiftCode(letter, action, shift){
 fs.access(input, fs.constants.F_OK, async (err) => {
 
   if (typeof shift !== 'number') {
-    return console.log('Shift is undefined. Please, enter parametr shift');
+    process.stderr.write('Shift is undefined. Please, enter parametr shift');
+    process.stdout.write('\n');
+    process.exit(1);
   }
   if (action !== 'encode' && action !== 'decode') {
-    return console.log('Action is undefined. Please, enter parametr action(encode or decode)');
+    process.stderr.write('Action is undefined. Please, enter parametr action(encode or decode)');
+    process.stdout.write('\n');
+    process.exit(1);
   }
   if (err) {
     if (err.code === 'ENOENT') {
@@ -102,20 +106,36 @@ fs.access(input, fs.constants.F_OK, async (err) => {
       console.log(err);
     }
   } else {
-    await fs.readFile(input, 'utf-8', (err, data) => {
-      if (err) {
-        process.stderr.write(err);
-        process.stdout.write('\n');
-        process.exit(1);
-      }
-  
+    const chunks = [];
+    let readableStream = fs.createReadStream(input, "utf8");
+    readableStream.on("data", function(chunk){ 
+      chunks.push(chunk.toString());
+    });
+    readableStream.on("end", () => {
+      // emit event that you finish to read from the stream, add to event a message with number of chunks
+      console.log(`Chunks count: ${chunks[0].length}`);
       let resultAction = '';
-      for (let i = 0; i < data.length; i++) {
-        resultAction += shiftCode(data[i], action, shift);
+      for (let i = 0; i < chunks[0].length; i++) {
+        resultAction += shiftCode(chunks[0][i], action, shift);
       }
       return write(resultAction);
+  })
+
   
-    })
+    // await fs.readFile(input, 'utf-8', (err, data) => {
+    //   if (err) {
+    //     process.stderr.write(err);
+    //     process.stdout.write('\n');
+    //     process.exit(1);
+    //   }
+  
+    //   let resultAction = '';
+    //   for (let i = 0; i < data.length; i++) {
+    //     resultAction += shiftCode(data[i], action, shift);
+    //   }
+    //   return write(resultAction);
+  
+    // })
   }
 });
 
@@ -134,13 +154,13 @@ function write(text){
         process.exit(1);
       }
     } else {
-
       fs.appendFileSync(output, text, async (err) => {
         if (err) {
           process.stderr.write(err);
           process.stdout.write('\n');
           process.exit(1);
         }
+
         console.log(`You can see result in ${output}`)
       });
       process.exit();
