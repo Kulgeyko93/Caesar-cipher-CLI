@@ -18,12 +18,13 @@ function readWrite(shift, action, input, output, minus) {
     }
     if (err) {
       if (err.code === 'ENOENT') {
-        console.log(`The file ${input} doesn't exist`);
-        console.log('Enter your message:');
+        // console.log(`The file ${input} doesn't exist`);
+        process.stdout.write('Enter your message:');
         process.stdin.on('data', (data) => {
   
           process.stdout.write('\n');
-          process.stdout.write('Enter your message:');
+          process.stdout.write(`The file ${input} doesn't exist`);
+          process.stdout.write('\n');
           const textStd = data.toString().trim();
     
           let resultAction = '';
@@ -62,7 +63,8 @@ function readWrite(shift, action, input, output, minus) {
     fs.access(output, fs.constants.F_OK, async (err) => {
       if (err) {
         if (err.code === 'ENOENT') {
-          console.log(`The file ${output} doesn't exist`)
+          process.stdout.write('\n');
+          process.stdout.write(`The file ${output} doesn't exist`);
           process.stdout.write('\n');
           process.stdout.write(`Result ${action}: ${text}`);
           process.stdout.write('\n');
