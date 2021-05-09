@@ -14,6 +14,7 @@ CLI tool should accept 4 options (short alias and full name):
 -i, --input: an input file
 -o, --output: an output file
 -a, --action: an action encode/decode
+-m, --minus: an if yes then the step is negative, for other values ​​the step is positive. Щptional argument!!!
 
 # Usage example:
 
